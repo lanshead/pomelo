@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {{ super() }}
+    <details>
+
+        <summary>Текущие задачи
+            <button>Создать расписание</button>
+        </summary>
+
+
+        {% for task in current_tasks %}
+
+            <p>Время исполнения: {{ current_tasks[task]['time_action'] }}, время
+                создания: {{ current_tasks[task]['time_create'] }}</p>
+            <button value="{{ task }}">{{ task }}</button></br>
+
+        {% endfor %}
+
+
+    </details>
+    <hr>
+    <details>
+
+        <summary>Выполненные задачи</summary>
+
+
+        {% for task in current_tasks %}
+
+            <p>Время исполнения: {{ current_tasks[task]['time_action'] }}, время
+                создания: {{ current_tasks[task]['time_create'] }}</p>
+            <button value="{{ task }}">{{ task }}</button></br>
+
+        {% endfor %}
+
+
+    </details>
+
+{% endblock %}
