@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import hashlib
+import json
 from FDataBase import FDataBase
 from flask import Flask, render_template, request, flash, redirect, url_for, session, abort, g
 
@@ -52,6 +53,22 @@ def login():
             flash('Ошибка ввода логина и/или пароля', category='error')
     return render_template('login.html', h1='Авторизация') # возвращаем страницу авторизации.
 
+@app.route("/add_task", methods=["POST", "GET"])
+def addTask():
+    if 'userLogged' not in session:
+        abort(401)
+    db = get_db()
+    dbase = FDataBase(db)
+    if request.method == "POST":
+        if len(request.form['name']) > 4 and len(request.form['file']) > 5:
+            res = dbase.addTask(request.form('task_name'), request.form('report_name'), request.form('t_create'), request.form('time_action'), request.form('format_action'), request.form('report_conf'))
+            if not res:
+                flash('Ошибка добавления статьи', category='error')
+            else:
+                flash('Статья добавлена успешно', category="success")
+        else:
+            flash('Ошибка добавления статьи', category='error')
+    return render_template('add_task.html', h1='Добавить задачу', reports=dbase.fromReports())
 
 @app.route("/profile/<username>")
 def profile(username):
