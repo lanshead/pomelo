@@ -3,37 +3,27 @@
 {% block content %}
     {{ super() }}
     <details>
-
         <summary>Текущие задачи
             <a href="/add_task"><input type="submit" value="Добавить" /></a>
         </summary>
-
-
-        {% for task in current_tasks %}
-
-            <p>Время исполнения: {{ current_tasks[task]['time_action'] }}, время
-                создания: {{ current_tasks[task]['time_create'] }}</p>
-            <button value="{{ task }}">{{ task }}</button></br>
-
+        <hr>
+        {% for task in actions %}
+            {% if task.isactive %}
+                <p>Наименование: {{ task.task_name }}<br>Отчет: {{ task.report_name }}<br>Время создания: {{ task.time_create }}<br>Данные 1: {{ task.label1 }}<br>Данные2: {{ task.label2 }}<br></p>
+                <button value="">Редактировать</button></br>
+                <hr>
+            {% endif %}
         {% endfor %}
-
-
     </details>
     <hr>
     <details>
-
         <summary>Выполненные задачи</summary>
-
-
-        {% for task in current_tasks %}
-
-            <p>Время исполнения: {{ current_tasks[task]['time_action'] }}, время
-                создания: {{ current_tasks[task]['time_create'] }}</p>
-            <button value="{{ task }}">{{ task }}</button></br>
-
+        {% for task in actions %}
+            {% if not task.isactive %}
+                <p>Наименование: {{ task.task_name }}<br>Отчет: {{ task.report_name }}<br>Время создания: {{ task.time_create }}<br>Данные 1: {{ task.label1 }}<br>Данные2: {{ task.label2 }}<br></p>
+                <button value="">???Редактировать???</button></br>
+                <hr>
+            {% endif %}
         {% endfor %}
-
-
     </details>
-
 {% endblock %}

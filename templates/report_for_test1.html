@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {{ super() }}
+{% for cat, msg in get_flashed_messages(True) %}
+    <div class="flash {{ cat }}">{{ msg }}</div>
+{% endfor %}
+    <h3>Форма задачи: "{{ session['task_name'] }}".</h3>
+<form action="" method="post" class="form-contact">
+{{ form.hidden_tag() }}
+{{ form.label1.label() }} {{ form.label1() }}<br>
+{{ form.label2.label() }} {{ form.label2() }}<br>
+{{ form.create() }}
+</form>
+
+{% endblock %}

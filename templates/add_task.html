@@ -6,18 +6,27 @@
     <div class="flash {{ cat }}">{{ msg }}</div>
 {% endfor %}
 
-<form action="{{ url_for('addTask') }}" method="post" class="form-contact">
+<form id='Form' action="{{ url_for('addTask') }}" method="post" class="form-contact">
 <p><label>Название задания: </label><input type="text" name="task_name" value="" required />
-<p><label>Название отчета: </label><select type="text" name="report_name">
+<!-- Выбор отчета. Наименования выгружаются из БД -->
+<p><label>Название отчета: </label><select type="text" name="report_name" id="" required>
+    <option selected disabled>Название отчета</option>
     {% for obj in reports %}
-    <option>{{ reports['obj'] }}</option>
+    <option>{{ obj.filename }}</option>
     {% endfor %}
 </select>
-<p><label>Формат действия: </label><select type="text" name="format_action">
-    <option>Однократно</option>
-    <option>Ежесуточно</option>
-    <option>Интервал</option>
-</select>
-<p><label>Время действия: </label><input type="time" name="time_action" />
+
+<!--<div id="includeContent"></div> -->
+
+<p><input type="submit" value="Далее" />
 </form>
+
+<!-- Серия if/else JS-скрипта, отображающий блоки в зависимости от заполняемых полей отчета, действия и времени -->
+<!--- <script type="text/javascript">
+    Form.report_name.addEventListener('change', function(e) {
+        if (e.target.value === 'test2')
+
+
+    })
+</script> -->
 {% endblock %}

@@ -8,6 +8,14 @@
     {%  endblock %}
 </head>
 <body>
+    <div>
+        POMELO:
+        <a href="{{ url_for('index') }}">Главная</a>
+        <a href="{{ url_for('login') }}">Вход</a>
+        <a href="{{ url_for('logout') }}">Выход</a>
+
+    </div>
+        <hr>
 {% block content -%}
 <h1>{{ h1 }}</h1>
 {% endblock -%}

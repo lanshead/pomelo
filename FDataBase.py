@@ -25,15 +25,25 @@ class FDataBase:
             res = self.__cur.fetchall()
             return res
         except sqlite3.Error as e:
-            print("Ошибка чтения из БД" + str(e))
+            print("Ошибка чтения из БД " + str(e))
         return {}
 
-    def addTask(self, task_name,  report_name, time_action, format_action, report_conf=None):
+    def addTask(self, task_name,  report_name, label1, label2, isactive):
         try:
-            t_create = math.floor(time.time)
-            self.__cur.execute("INSERT INTO actions VALUES(NULL,?,?,?,?,?,?,)", (task_name, report_name, t_create, time_action, format_action, report_conf))
-            self.db.commit()
+            t_create = math.floor(time.time())
+            self.__cur.execute("INSERT INTO actions VALUES(NULL,?,?,?,?,?,?)", (task_name,  report_name, t_create, label1, label2, isactive))
+            self.__db.commit()
         except sqlite3.Error as e:
             print("Ошибка добавления статьи в БД "+str(e))
             return False
         return True
+
+    def fromActions(self):
+        sql = '''SELECT * FROM actions'''
+        try:
+            self.__cur.execute(sql)
+            res = self.__cur.fetchall()
+            return res
+        except sqlite3.Error as e:
+            print("Ошибка чтения из БД " + str(e))
+        return {}
