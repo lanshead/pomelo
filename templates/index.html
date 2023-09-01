@@ -9,15 +9,14 @@
         <hr>
         {% for task in actions %}
             {% if task.isactive %}
-                <p>Наименование: {{ task.task_name }}<br>Отчет: {{ task.report_name }}<br>Время создания: {{ task.time_create }}<br>Данные 1: {{ task.label1 }}<br>Данные2: {{ task.label2 }}<br></p>
-                <button value="">Редактировать</button></br>
+                <p>Наименование: {{ task.task_name }}<br>Отчет: {{ task.report_name }}<br>Время создания: {{ task.string_time_create }}<br>Данные 1: {{ task.label1 }}<br>Данные2: {{ task.label2 }}<br></p>
+                <a href="{{ task.report_name }}"> <button value="">Создать сейчас</button></a></br>
                 <hr>
             {% endif %}
         {% endfor %}
     </details>
-    <hr>
     <details>
-        <summary>Выполненные задачи</summary>
+        <summary>Завершенные задачи</summary>
         {% for task in actions %}
             {% if not task.isactive %}
                 <p>Наименование: {{ task.task_name }}<br>Отчет: {{ task.report_name }}<br>Время создания: {{ task.time_create }}<br>Данные 1: {{ task.label1 }}<br>Данные2: {{ task.label2 }}<br></p>

@@ -1,6 +1,7 @@
 import sqlite3
 import math
 import time
+from datetime import datetime as dt
 
 
 class FDataBase:
@@ -9,6 +10,7 @@ class FDataBase:
         self.__cur = db.cursor()
 
     def getLogPass(self, input_log):
+        '''Получение логина и пароля из соответствующе таблицы БД для аутентификации пользователей'''
         sql = f'''SELECT _user, _pass FROM users WHERE _user = "{input_log}"'''
         try:
             self.__cur.execute(sql)
@@ -19,6 +21,7 @@ class FDataBase:
         return []
 
     def fromReports(self):
+        '''Получение всех наименований отчетов из соответствующе таблицы БД'''
         sql = '''SELECT * FROM reports'''
         try:
             self.__cur.execute(sql)
@@ -28,10 +31,11 @@ class FDataBase:
             print("Ошибка чтения из БД " + str(e))
         return {}
 
-    def addTask(self, task_name,  report_name, label1, label2, isactive):
+    def addTask(self, task_name, report, report_name, label1, label2, isactive):
+        '''Добавление задачи в соответствующую таблицу БД'''
         try:
-            t_create = math.floor(time.time())
-            self.__cur.execute("INSERT INTO actions VALUES(NULL,?,?,?,?,?,?)", (task_name,  report_name, t_create, label1, label2, isactive))
+            t_create = math.floor(time.time())# переменную отформатировать в строку и записать отдельным column в БД???
+            self.__cur.execute("INSERT INTO actions VALUES(NULL,?,?,?,?,?,?,?,?)", (task_name,  report, report_name, t_create, dt.fromtimestamp(t_create).strftime("%d.%m.%Y, %H:%M:%S"), label1, label2, isactive))
             self.__db.commit()
         except sqlite3.Error as e:
             print("Ошибка добавления статьи в БД "+str(e))
@@ -39,6 +43,10 @@ class FDataBase:
         return True
 
     def fromActions(self):
+        '''Получение всех задач из соответствующей таблицы БД'''
+        # наподумать: класс используется дважды для формирования списка АКТИВНЫХ и ВЫПОЛНЕННЫХ задач,
+        # и в дальнейшем фильтруется в index.html . Необходимо ли сделать два класса, где первый будет
+        # выгружать только активные задачи из таблицы БД, а второй только выполненные.
         sql = '''SELECT * FROM actions'''
         try:
             self.__cur.execute(sql)
@@ -47,3 +55,4 @@ class FDataBase:
         except sqlite3.Error as e:
             print("Ошибка чтения из БД " + str(e))
         return {}
+

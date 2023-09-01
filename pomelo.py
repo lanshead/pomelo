@@ -2,7 +2,10 @@ import sqlite3
 import os
 import hashlib
 import json
+from sourcescript import compare_count_pos
+from forms import ReportTest1
 from FDataBase import FDataBase
+from datetime import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for, session, abort, g
 
 DATABASE = '/tmp/flsk_website.db'
@@ -14,14 +17,7 @@ SECRET_KEY = 'aete%#@%aglaghlsdhl124215%#@%#gdlsgl'
 app = Flask(__name__)
 app.config.from_object(__name__)
 
-app.config.update(dict(DATABASE=os.path.join(app.root_path,'flsk_website.db')))
-
-# Имитация данных о текущих задачах из БД
-current_tasks = {'task1': {'time_create': 1, 'time_action': 11, 'iscycle': True},
-                 'task2': {'time_create': 2, 'time_action': 22, 'iscycle': False},
-                 'task3': {'time_create': 3, 'time_action': 33, 'iscycle': True},
-                 'task4': {'time_create': 4, 'time_action': 44, 'iscycle': False},
-                 'task5': {'time_create': 5, 'time_action': 55, 'iscycle': True}}
+app.config.update(dict(DATABASE=os.path.join(app.root_path, 'flsk_website.db')))
 
 
 # >>>Навигация по сайту
@@ -29,7 +25,10 @@ current_tasks = {'task1': {'time_create': 1, 'time_action': 11, 'iscycle': True}
 def index():
     if 'userLogged' not in session:
         return render_template('login.html', h1='Авторизация')
-    return render_template('index.html', h1='Задачи', current_tasks=current_tasks)
+    db = get_db()
+    dbase = FDataBase(db)
+    return render_template('index.html', h1='Задачи', actions=dbase.fromActions())
+
 
 @app.route('/test')
 def test():
@@ -37,45 +36,82 @@ def test():
     dbase = FDataBase(db)
     return render_template('test.html', users=dbase.getLogPass('test2'))
 
+
 @app.route('/login', methods=["POST", "GET"])
 def login():
     if 'userLogged' in session:
         return redirect(url_for('profile', username=session['userLogged']))
     elif request.method == 'POST':
-        db = get_db() #  коннект к базе
-        dbase = FDataBase(db).getLogPass(request.form['username']) # получение из базы значения пользователя и его хеш-пароля в виде [dict()]
-        if dbase: #  eсли dbase нашла пользователя
-            if hashlib.scrypt(request.form['pass'].encode(), salt='mysalt'.encode(), n=8, r=512, p=4, dklen=32).hex() == dbase[0]['_pass']: # хешируем введенный пароль и сравниваем тем хешем, который есть взят из базы
-                session['userLogged'] = request.form['username'] # заполняем значение сессии о том, что пользователь авторизован
-                return redirect(url_for('profile', username=session['userLogged'])) # перенаправляем пользователя на страницу профиля
+        db = get_db()  # коннект к базе
+        dbase = FDataBase(db).getLogPass(
+            request.form['username'])  # получение из базы значения пользователя и его хеш-пароля в виде [dict()]
+        if dbase:  # eсли dbase нашла пользователя
+            if hashlib.scrypt(request.form['pass'].encode(), salt='mysalt'.encode(), n=8, r=512, p=4, dklen=32).hex() == \
+                    dbase[0]['_pass']:  # хешируем введенный пароль и сравниваем тем хешем, который есть взят из базы
+                session['userLogged'] = request.form[
+                    'username']  # заполняем значение сессии о том, что пользователь авторизован
+                return redirect(url_for('profile', username=session[
+                    'userLogged']))  # перенаправляем пользователя на страницу профиля
             flash('Ошибка ввода логина и/или пароля', category='error')
         else:
             flash('Ошибка ввода логина и/или пароля', category='error')
-    return render_template('login.html', h1='Авторизация') # возвращаем страницу авторизации.
+    return render_template('login.html', h1='Авторизация')  # возвращаем страницу авторизации.
+
 
 @app.route("/add_task", methods=["POST", "GET"])
 def addTask():
+    '''Рендерит страницу для указания наименования и выбора отчета. При нажатии кнопки "Далее" редиректит на
+    страницу соответствующую отчета для заполнения дополнительных параметров'''
+    # 1) На 30.08.23 реализована заглушка для отчета test1 с единственной тестовой формой отчета report_for_test1.html
+    # 2) символические проверки вводимых полей, нужно думать как проверять.
     if 'userLogged' not in session:
         abort(401)
     db = get_db()
     dbase = FDataBase(db)
     if request.method == "POST":
-        if len(request.form['name']) > 4 and len(request.form['file']) > 5:
-            res = dbase.addTask(request.form('task_name'), request.form('report_name'), request.form('t_create'), request.form('time_action'), request.form('format_action'), request.form('report_conf'))
-            if not res:
-                flash('Ошибка добавления статьи', category='error')
-            else:
-                flash('Статья добавлена успешно', category="success")
+        if len(request.form['task_name']) > 4 and request.form['report_name'] == 'test1':
+            session['task_name'] = request.form['task_name']# сохраняем в сессии имя отчета
+            return redirect(url_for('report_for_test1'))
         else:
             flash('Ошибка добавления статьи', category='error')
     return render_template('add_task.html', h1='Добавить задачу', reports=dbase.fromReports())
+
+
+@app.route('/report_for_test1', methods=['GET', 'POST'])
+def report_for_test1():
+    '''Заполнение данных для конкретного отчета.'''
+    if 'userLogged' not in session:
+        abort(401)
+
+    db = get_db()
+    dbase = FDataBase(db)
+    form = ReportTest1()
+    if form.validate_on_submit():
+        dbase.addTask(session['task_name'], 'test1', 'compare_count_pos.py', request.form['label1'], request.form['label2'], isactive=1)
+        return redirect(url_for('index'))
+    return render_template('report_for_test1.html', h1='Задача для test1', form=form)
+
+@app.route('/test1')
+def create_now():
+    if 'userLogged' not in session:
+        abort(401)
+    count_pos = compare_count_pos
+    return render_template('test1.html', h1='CREATE NOW', count_pos=count_pos)
 
 @app.route("/profile/<username>")
 def profile(username):
     if 'userLogged' not in session or session['userLogged'] != username:
         abort(401)
+    db = get_db()
+    dbase = FDataBase(db)
+    return render_template('index.html', h1='Задачи', actions=dbase.fromActions())
 
-    return render_template('index.html', h1='Задачи', current_tasks=current_tasks)
+
+@app.route("/logout")
+def logout():
+    if 'userLogged' in session:
+        session.clear()
+    abort(401)
 
 
 # >>>Взаимодействие с БД

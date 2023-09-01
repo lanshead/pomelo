@@ -1,4 +1,3 @@
-import time
-import math
-from datetime import datetime
-print(datetime.fromtimestamp(math.floor(time.time())).strftime("%d-%b-%Y %H:%M:%S"))
+from sourcescript import compare_count_pos
+
+print(compare_count_pos.output)
