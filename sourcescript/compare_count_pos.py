@@ -22,7 +22,7 @@ def get_session_key(url, p):
 
     # параметры необходимые для работы скрипта
 def compare_positions(user='CCT',usr_pass='200318', db_address='10.10.4.4', db_login='sa', db_pass='qwEr12#4', db_name='dozor_2023_07_29'):
-    database_connection = [db_address, db_login, db_login, db_name]  # параметры коннекта к базе данных
+    database_connection = [db_address, db_login, db_pass, db_name]  # параметры коннекта к базе данных
     # системные параметры
     login_url = 'http://stat.navsvc.ru:7000/mon/login?'
     objects_url = 'http://stat.navsvc.ru:7000/mon/objects?'
