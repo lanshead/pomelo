@@ -1,3 +1,4 @@
+#lanshead import
 import sqlite3
 import os
 import hashlib
@@ -5,8 +6,14 @@ import json
 from sourcescript import compare_count_pos
 from forms import ReportTest1
 from FDataBase import FDataBase
-from datetime import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for, session, abort, g
+# biteANDrun import
+import datetime
+import time
+from pymssql import connect
+import requests
+from obj_env.obj_classes import PositionComp
+from datetime import timedelta, datetime
 
 DATABASE = '/tmp/flsk_website.db'
 DEBUG = True
@@ -18,6 +25,12 @@ app = Flask(__name__)
 app.config.from_object(__name__)
 
 app.config.update(dict(DATABASE=os.path.join(app.root_path, 'flsk_website.db')))
+
+
+def config_rep_test1(tsk_name):
+    db = get_db()
+    dbase = FDataBase(db)
+    return json.loads(dbase.getConfigTest1(tsk_name)[0][0])
 
 
 # >>>Навигация по сайту
@@ -50,7 +63,7 @@ def login():
                     dbase[0]['_pass']:  # хешируем введенный пароль и сравниваем тем хешем, который есть взят из базы
                 session['userLogged'] = request.form[
                     'username']  # заполняем значение сессии о том, что пользователь авторизован
-                return redirect(url_for('profile', username=session[
+                return redirect(url_for('index', username=session[
                     'userLogged']))  # перенаправляем пользователя на страницу профиля
             flash('Ошибка ввода логина и/или пароля', category='error')
         else:
@@ -62,15 +75,13 @@ def login():
 def addTask():
     '''Рендерит страницу для указания наименования и выбора отчета. При нажатии кнопки "Далее" редиректит на
     страницу соответствующую отчета для заполнения дополнительных параметров'''
-    # 1) На 30.08.23 реализована заглушка для отчета test1 с единственной тестовой формой отчета report_for_test1.html
-    # 2) символические проверки вводимых полей, нужно думать как проверять.
     if 'userLogged' not in session:
         abort(401)
     db = get_db()
     dbase = FDataBase(db)
     if request.method == "POST":
         if len(request.form['task_name']) > 4 and request.form['report_name'] == 'test1':
-            session['task_name'] = request.form['task_name']# сохраняем в сессии имя отчета
+            session['task_name'] = request.form['task_name']  # сохраняем в сессии имя отчета
             return redirect(url_for('report_for_test1'))
         else:
             flash('Ошибка добавления статьи', category='error')
@@ -86,17 +97,53 @@ def report_for_test1():
     db = get_db()
     dbase = FDataBase(db)
     form = ReportTest1()
+    # print(form.data)
     if form.validate_on_submit():
-        dbase.addTask(session['task_name'], 'test1', 'compare_count_pos.py', request.form['label1'], request.form['label2'], isactive=1)
+        # ГДЕ-ТО ЗДЕСЬ МЫ ДОЛЖНЫ СДЕЛАТЬ ЧТО-ТО С ШЕДУЛЕРОМ
+        configs = json.dumps(
+            {'user': request.form['user'],
+             'usr_pass': request.form['usr_pass'],
+             'db_adress': request.form['db_adress'],
+             'db_login': request.form['db_login'],
+             'db_pass': request.form['db_pass'],
+             'db_name': request.form['db_name'],
+             'time_interval': request.form['time_interval'],
+             'tm_begin': request.form['tm_begin'],
+             'dt_begin': request.form['dt_begin'],
+             'tm_end': request.form['tm_end'],
+             'dt_end': request.form['dt_end']
+             })
+        # ИЛИ ЗДЕСЬ (А МОЖЕТ И ПОТОМ ЗАБРАВ ИНФУ ИЗ БД)
+        dbase.addTask(session['task_name'], 'test1', 'compare_count_pos.py', configs, isactive=1, descript=None)
         return redirect(url_for('index'))
+    # print(form.validate_on_submit(), request.form['time_interval'], request.form['tm_begin'], request.form['dt_begin'], request.form['tm_end'], request.form['dt_end'], sep='\n')
     return render_template('report_for_test1.html', h1='Задача для test1', form=form)
 
-@app.route('/test1')
+
+@app.route('/test1', methods=['GET', 'POST'])
 def create_now():
     if 'userLogged' not in session:
         abort(401)
-    count_pos = compare_count_pos
-    return render_template('test1.html', h1='CREATE NOW', count_pos=count_pos)
+    db = get_db()
+    dbase = FDataBase(db)
+    tsk_name = [v for v in request.args.values()][0]
+    #count_pos = config_rep_test1(req)
+#     print(count_pos,count_pos['user'],
+# count_pos['usr_pass'],
+# count_pos['db_adress'],
+# count_pos['db_login'],
+# count_pos['db_pass'],
+# count_pos['db_name'], sep='\n')
+    #НЕ РАБОТАИТ
+    config = json.loads(dbase.getConfigTest1(tsk_name)[0]['configs'])
+    print(compare_count_pos.compare_positions(user=config['user'],
+                            usr_pass=config['usr_pass'],
+                            db_address=config['db_adress'],
+                            db_login=config['db_login'],
+                            db_pass=config['db_pass'],
+                            db_name=config['db_name']))
+    return request.args.values()
+
 
 @app.route("/profile/<username>")
 def profile(username):

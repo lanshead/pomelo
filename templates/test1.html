@@ -6,8 +6,10 @@
     <div class="flash {{ cat }}">{{ msg }}</div>
 {% endfor %}
 
+{% if count_pos %}
+    <p>output: {{ count_pos }}</p>
+{% endif %}
 
-<p>Список объектов: {{ count_pos.output[0] }}</p>
-<p>Кол-во объектов с разными позициями: {{ count_pos.output[1] }}</p>
+
 
 {% endblock %}

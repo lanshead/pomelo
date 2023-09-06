@@ -31,11 +31,11 @@ class FDataBase:
             print("Ошибка чтения из БД " + str(e))
         return {}
 
-    def addTask(self, task_name, report, report_name, label1, label2, isactive):
+    def addTask(self, task_name, report, report_name, configs, isactive, descript=None):
         '''Добавление задачи в соответствующую таблицу БД'''
         try:
             t_create = math.floor(time.time())# переменную отформатировать в строку и записать отдельным column в БД???
-            self.__cur.execute("INSERT INTO actions VALUES(NULL,?,?,?,?,?,?,?,?)", (task_name,  report, report_name, t_create, dt.fromtimestamp(t_create).strftime("%d.%m.%Y, %H:%M:%S"), label1, label2, isactive))
+            self.__cur.execute("INSERT INTO actions VALUES(NULL,?,?,?,?,?,?,?,?)", (task_name,  report, report_name, t_create, dt.fromtimestamp(t_create).strftime("%d.%m.%Y, %H:%M:%S"), configs, isactive, descript))
             self.__db.commit()
         except sqlite3.Error as e:
             print("Ошибка добавления статьи в БД "+str(e))
@@ -55,4 +55,15 @@ class FDataBase:
         except sqlite3.Error as e:
             print("Ошибка чтения из БД " + str(e))
         return {}
+
+    def getConfigTest1(self, tsk_name):
+
+        sql = f'''SELECT configs FROM actions WHERE task_name="{tsk_name}"'''
+        try:
+            self.__cur.execute(sql)
+            res = self.__cur.fetchall()
+            return res
+        except sqlite3.Error as e:
+            print("Ошибка чтения из БД" + str(e))
+        return []
 
