@@ -1,6 +1,7 @@
 import sqlite3
 import math
 import time
+import pickle
 from datetime import datetime as dt
 
 
@@ -36,6 +37,16 @@ class FDataBase:
         try:
             t_create = math.floor(time.time())# переменную отформатировать в строку и записать отдельным column в БД???
             self.__cur.execute("INSERT INTO actions VALUES(NULL,?,?,?,?,?,?,?,?)", (task_name,  report, report_name, t_create, dt.fromtimestamp(t_create).strftime("%d.%m.%Y, %H:%M:%S"), configs, isactive, descript))
+            self.__db.commit()
+        except sqlite3.Error as e:
+            print("Ошибка добавления статьи в БД "+str(e))
+            return False
+        return True
+
+    def addJob(self, task_name, warning_obj, output):
+        try:
+            t_create = math.floor(time.time())
+            self.__cur.execute("INSERT INTO jobs VALUES(NULL,?,?,?,?)", (task_name, t_create, str(warning_obj), pickle.dumps(output)))
             self.__db.commit()
         except sqlite3.Error as e:
             print("Ошибка добавления статьи в БД "+str(e))

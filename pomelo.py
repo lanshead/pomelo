@@ -8,12 +8,12 @@ from forms import ReportTest1
 from FDataBase import FDataBase
 from flask import Flask, render_template, request, flash, redirect, url_for, session, abort, g
 # biteANDrun import
-import datetime
-import time
-from pymssql import connect
-import requests
-from obj_env.obj_classes import PositionComp
-from datetime import timedelta, datetime
+# import datetime
+# import time
+# from pymssql import connect
+# import requests
+# from obj_env.obj_classes import PositionComp
+# from datetime import timedelta, datetime
 
 DATABASE = '/tmp/flsk_website.db'
 DEBUG = True
@@ -40,7 +40,11 @@ def index():
         return render_template('login.html', h1='Авторизация')
     db = get_db()
     dbase = FDataBase(db)
-    return render_template('index.html', h1='Задачи', actions=dbase.fromActions())
+    actions = dbase.fromActions()
+    configs = {}
+    for task in actions:
+        configs[f'{task[1]}']=json.loads(task[6])
+    return render_template('index.html', h1='Задачи', actions=actions, configs=configs)
 
 
 @app.route('/test')
@@ -127,22 +131,15 @@ def create_now():
     db = get_db()
     dbase = FDataBase(db)
     tsk_name = [v for v in request.args.values()][0]
-    #count_pos = config_rep_test1(req)
-#     print(count_pos,count_pos['user'],
-# count_pos['usr_pass'],
-# count_pos['db_adress'],
-# count_pos['db_login'],
-# count_pos['db_pass'],
-# count_pos['db_name'], sep='\n')
-    #НЕ РАБОТАИТ
     config = json.loads(dbase.getConfigTest1(tsk_name)[0]['configs'])
-    print(compare_count_pos.compare_positions(user=config['user'],
+    job = compare_count_pos.compare_positions(user=config['user'],
                             usr_pass=config['usr_pass'],
                             db_address=config['db_adress'],
                             db_login=config['db_login'],
                             db_pass=config['db_pass'],
-                            db_name=config['db_name']))
-    return request.args.values()
+                            db_name=config['db_name'])
+    dbase.addJob(tsk_name, job[0], job[1])
+    return render_template('job_output.html', h1='Задача выполнена', output=job[1])
 
 
 @app.route("/profile/<username>")
