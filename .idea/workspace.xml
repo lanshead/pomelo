@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ca100a9b-ae9d-4ceb-a819-198ffeb063bb" name="05.09.2023 Compare_count_pos" comment="test">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="ca100a9b-ae9d-4ceb-a819-198ffeb063bb" name="05.09.2023 Compare_count_pos" comment="test" />
     <list id="713cc1c2-194e-418b-b7a3-9ff77bb5a2ea" name="Changes" comment="переделал работу скрипта в функцию compare_positions" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -148,7 +146,7 @@
       <workItem from="1694412479073" duration="4854000" />
       <workItem from="1694444968127" duration="5704000" />
       <workItem from="1694451473761" duration="3743000" />
-      <workItem from="1694622960359" duration="2051000" />
+      <workItem from="1694622960359" duration="2779000" />
     </task>
     <task id="LOCAL-00001" summary="переделал работу скрипта в функцию compare_positions">
       <option name="closed" value="true" />
@@ -174,7 +172,15 @@
       <option name="project" value="LOCAL" />
       <updated>1694451093978</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="test">
+      <option name="closed" value="true" />
+      <created>1694633065289</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1694633065289</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -197,6 +203,11 @@
         <entry key="Branch">
           <value>
             <list>
+              <RecentGroup>
+                <option name="FILTER_VALUES">
+                  <option value="main" />
+                </option>
+              </RecentGroup>
               <RecentGroup>
                 <option name="FILTER_VALUES">
                   <option value="origin/main" />
